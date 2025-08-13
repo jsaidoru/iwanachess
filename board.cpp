@@ -1,4 +1,3 @@
-#include "board.hpp"
 #include <iostream>
 #include <cstdint>
 #include <array>
@@ -6,14 +5,10 @@
 #include <string>
 #include <cctype>
 #include <vector>
+#include "Board.hpp"
+#include "types.hpp"
 
 using Bitboard = uint64_t;
-
-enum class Col { BLACK, WHITE, COLOR_NB };
-enum class PType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PIECE_TYPE_NB };
-
-constexpr int COLOR_NB = static_cast<int>(Col::COLOR_NB);
-constexpr int PIECE_TYPE_NB = static_cast<int>(PType::PIECE_TYPE_NB);
 
 std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
@@ -29,9 +24,12 @@ void Board::set_bit(Bitboard &bb, int square) {
     bb |= (1ULL << square);
 }
 
-int convert_square_from_coords(char file, char rank) {
+Square convert_square_from_coords(char file, char rank) {
     return (rank - '1') * 8 + (file - 'a');
 }
+
+constexpr size_t idx(Color c)   { return static_cast<size_t>(c); }
+constexpr size_t idx(PieceType p)   { return static_cast<size_t>(p); }
 
 void Board::set_bb_from_fen(){
     std::vector<std::string> fen_parts = split(fen, ' '); 
@@ -47,27 +45,27 @@ void Board::set_bb_from_fen(){
             square += 'c' - '0';
         }
         else{
-            Color color = isupper(c) ? WHITE : BLACK;
+            Color color = isupper(c) ? Color::WHITE : Color::BLACK;
             PieceType pt;
             switch (std::tolower(c)){
-                case 'p': pt = PAWN;   break;
-                case 'n': pt = KNIGHT; break;
-                case 'b': pt = BISHOP; break;
-                case 'r': pt = ROOK;   break;
-                case 'q': pt = QUEEN;  break;
-                case 'k': pt = KING;   break;
+                case 'p': pt = PieceType::PAWN;   break;
+                case 'n': pt = PieceType::KNIGHT; break;
+                case 'b': pt = PieceType::BISHOP; break;
+                case 'r': pt = PieceType::ROOK;   break;
+                case 'q': pt = PieceType::QUEEN;  break;
+                case 'k': pt = PieceType::KING;   break;
                 default: continue;
             }
 
-            set_bit(bitboards[color][pt], square);
-            occupied_co[color] |= (1ull << square);
+            set_bit(bitboards[idx(color)][idx(pt)], square);
+            occupied_co[idx(color)] |= (1ull << square);
             occupied |= (1ull << square);
             square++;
         }
     }
 
     std::string side = fen_parts[1];
-    side_to_move = side == "w" ? WHITE : BLACK;
+    side_to_move = side == "w" ? Color::WHITE : Color::BLACK;
 
     std::string castling = fen_parts[2];
     for (char c : castling){
@@ -117,6 +115,13 @@ std::string Board::to_ascii() const {
     return board;
 }
 
+Bitboard Board::get_piece_mask(Color color, PieceType piece_type) const{
+    return bitboards[idx(color)][idx(piece_type)];
+}
+
+Bitboard Board::get_occupied_mask() const{
+    return occupied;
+}
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
     os << board.to_ascii();
