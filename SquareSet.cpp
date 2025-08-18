@@ -3,12 +3,13 @@
 #include "SquareSet.hpp"
 #include "types.hpp"
 
+// A wrapper around bitboards, provide an iterable interface and other convenience methods.
 Bitboard mask;
 std::vector<Bitboard> squares;
 
 SquareSet::SquareSet(Bitboard m) : mask(m) {}
 
-Bitboard SquareSet::get_mask(){
+Bitboard SquareSet::get_mask() const{
     return mask;
 }
 
@@ -20,13 +21,24 @@ int SquareSet::size() const {
     return __builtin_popcountll(mask);
 }
 
-std::vector<Square> SquareSet::iter() const {
-    std::vector<Square> squares;
-    uint64_t m = mask;
-    while (m) {
-        int sq = __builtin_ctzll(m);
-        squares.push_back(sq);
-        m &= (m - 1);
-    }
-    return squares;
+Square SquareSet::Iterator::operator*() {
+    return static_cast<Square>(__builtin_ctzll(remaining));
+}
+
+SquareSet::Iterator &SquareSet::Iterator::operator++() {
+    remaining &= (remaining - 1);
+    return *this;
+}
+
+bool SquareSet::Iterator::operator!=(const SquareSet::Iterator &other) {
+    return remaining != other.remaining;
+}
+
+std::ostream& operator<<(std::ostream& os, const SquareSet& squareset) {
+    os << std::hex << squareset.get_mask();
+    return os;
+}
+
+SquareSet operator|(const SquareSet& lhs, const SquareSet& rhs) {
+    return SquareSet(lhs.get_mask() | rhs.get_mask());
 }

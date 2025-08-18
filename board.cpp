@@ -7,6 +7,7 @@
 #include <vector>
 #include "Board.hpp"
 #include "types.hpp"
+#include "bb_functions.hpp"
 
 using Bitboard = uint64_t;
 
@@ -20,18 +21,34 @@ std::vector<std::string> split(const std::string& s, char delimiter) {
     return tokens;
 }
 
-void Board::set_bit(Bitboard &bb, int square) {
-    bb |= (1ULL << square);
-}
-
 Square convert_square_from_coords(char file, char rank) {
-    return (rank - '1') * 8 + (file - 'a');
+    return static_cast<Square>((rank - '1') * 8 + (file - 'a'));
 }
 
-constexpr size_t idx(Color c)   { return static_cast<size_t>(c); }
-constexpr size_t idx(PieceType p)   { return static_cast<size_t>(p); }
+template<typename E>
+constexpr auto cast(E e) noexcept {
+    return static_cast<std::underlying_type_t<E>>(e);
+}
+
+Board::Board(const std::string& fen){
+    Board::fen = fen;
+    set_bb_from_fen();
+}
+
+void Board::reset_bitboard(){
+    for (int color = 0; color < 2; color++) {
+        for (int piece = 0; piece < 6; piece++) {
+            bitboards[color][piece] = 0ull;
+        }
+        occupied_co[color] = 0ull;
+    }
+    occupied = 0ull;
+    castling_rights = 0;
+}
 
 void Board::set_bb_from_fen(){
+    reset_bitboard();
+
     std::vector<std::string> fen_parts = split(fen, ' '); 
     // format: piece placement, side to move, castling rights, en passant square, halfmove clock, fullmove number
     int square = 56; // a8 in LERF mapping
@@ -39,10 +56,10 @@ void Board::set_bb_from_fen(){
     std::string pieces = fen_parts[0];
     for (char c : pieces){
         if (c == '/'){
-            square -= 8;
+            square -= 16;
         }
         else if (isdigit(c)){
-            square += 'c' - '0';
+            square += c - '0';
         }
         else{
             Color color = isupper(c) ? Color::WHITE : Color::BLACK;
@@ -57,8 +74,8 @@ void Board::set_bb_from_fen(){
                 default: continue;
             }
 
-            set_bit(bitboards[idx(color)][idx(pt)], square);
-            occupied_co[idx(color)] |= (1ull << square);
+            set_bit(bitboards[cast(color)][cast(pt)], static_cast<Square>(square));
+            occupied_co[cast(color)] |= (1ull << square);
             occupied |= (1ull << square);
             square++;
         }
@@ -79,7 +96,7 @@ void Board::set_bb_from_fen(){
 
     std::string enpassant = fen_parts[3];
     if (enpassant == "-"){
-        en_passant_square = -1;
+        en_passant_square = Square::NO_SQ;
     }
     else{
         en_passant_square = convert_square_from_coords(enpassant[0], enpassant[1]);
@@ -116,11 +133,29 @@ std::string Board::to_ascii() const {
 }
 
 Bitboard Board::get_piece_mask(Color color, PieceType piece_type) const{
-    return bitboards[idx(color)][idx(piece_type)];
+    return bitboards[cast(color)][cast(piece_type)];
+}
+
+Bitboard Board::get_occupied_co(Color color) const{
+    return occupied_co[cast(color)];
 }
 
 Bitboard Board::get_occupied_mask() const{
     return occupied;
+}
+
+void Board::get_all_bitboard(){
+    for (size_t color = 0; color < COLOR_NB; ++color) {
+        for (size_t piece = 0; piece < PIECE_TYPE_NB; ++piece) {
+            std::cout << "Color " << color
+                    << ", Piece " << piece
+                    << ": " << bitboards[color][piece] << "\n";
+        }
+    }
+}
+
+Square Board::get_ep_square() const{
+    return en_passant_square;
 }
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
