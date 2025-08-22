@@ -14,7 +14,8 @@ Bitboard king_possible_targets(Bitboard king){
             shift_southwest(king);
 }
 
-Bitboard pseudo_legal_king_attacks(Board& board, Color color){
-    Bitboard king_mask = board.get_piece_mask(color, PieceType::KING);
-    return king_possible_targets(king_mask);
+Bitboard pseudo_legal_king_attacks(Square king, Color color){
+    Bitboard king_mask = 1ull << static_cast<int>(king);
+    Bitboard king_moves = king_possible_targets(king_mask);
+    return king_moves;
 }

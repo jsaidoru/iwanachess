@@ -5,7 +5,10 @@
 using Bitboard = uint64_t;
 
 enum class Color : int { WHITE, BLACK, COLOR_NB };
-enum class PieceType : int { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PIECE_TYPE_NB };
+constexpr Color operator~(Color color){
+    return (color == Color::WHITE) ? Color::BLACK : Color::WHITE;
+}
+enum class PieceType : int { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PIECE_TYPE_NB, PT_NONE = -1 };
 enum class Square : int {
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -17,6 +20,11 @@ enum class Square : int {
     A8, B8, C8, D8, E8, F8, G8, H8,
     NO_SQ = -1
 };
+
+constexpr Square operator++(Square& sq) {
+    sq = static_cast<Square>(static_cast<int>(sq) + 1);
+    return sq;
+}
 
 constexpr int COLOR_NB = 2;
 constexpr int PIECE_TYPE_NB = 6;

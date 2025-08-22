@@ -37,5 +37,7 @@ public:
 
     void get_all_bitboard();
 
+    PieceType piece_type_at(Square square) const;
+
     friend std::ostream& operator<<(std::ostream& os, const Board& board);
 };

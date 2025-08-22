@@ -158,6 +158,38 @@ Square Board::get_ep_square() const{
     return en_passant_square;
 }
 
+PieceType Board::piece_type_at(Square square) const{
+    Bitboard mask = 1ull << static_cast<int>(square);
+    Bitboard pawns = get_piece_mask(Color::WHITE, PieceType::PAWN) | get_piece_mask(Color::BLACK, PieceType::PAWN);
+    Bitboard knights = get_piece_mask(Color::WHITE, PieceType::KNIGHT) | get_piece_mask(Color::BLACK, PieceType::KNIGHT);
+    Bitboard bishops = get_piece_mask(Color::WHITE, PieceType::BISHOP) | get_piece_mask(Color::BLACK, PieceType::BISHOP);
+    Bitboard rooks = get_piece_mask(Color::WHITE, PieceType::ROOK) | get_piece_mask(Color::BLACK, PieceType::ROOK);
+    Bitboard queens = get_piece_mask(Color::WHITE, PieceType::QUEEN) | get_piece_mask(Color::BLACK, PieceType::QUEEN);
+    Bitboard king = get_piece_mask(Color::WHITE, PieceType::KING) | get_piece_mask(Color::BLACK, PieceType::KING);
+
+    if (!(occupied & mask)){
+        return PieceType::PT_NONE;
+    }
+    else if (pawns & mask){
+        return PieceType::PAWN;
+    }
+    else if (knights & mask){
+        return PieceType::KNIGHT;
+    }
+    else if (bishops & mask){
+        return PieceType::BISHOP;
+    }
+    else if (rooks & mask){
+        return PieceType::ROOK;
+    }
+    else if (queens & mask){
+        return PieceType::QUEEN;
+    }
+    else{
+        return PieceType::KING;
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const Board& board) {
     os << board.to_ascii();
     return os;
