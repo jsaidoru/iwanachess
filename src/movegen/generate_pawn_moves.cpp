@@ -1,6 +1,7 @@
 #include "attacksgen/pawn_attacks.hpp"
-#include "Move.hpp"
-#include "MoveList.hpp"
+#include "../Move.hpp"
+#include "../MoveList.hpp"
+#include "generate_pawn_moves.hpp"
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -57,8 +58,8 @@ MoveList generate_pseudo_pawn_captures(const Board& board, Color side){
             moves.add_move(Move(sq, to, captured_piece));
         }
 
-        if (!(ep_square == Square::NO_SQ)){
-        moves.add_move(Move(sq, ep_square, PieceType::PAWN));
+        if (ep_square != Square::NO_SQ){
+            moves.add_move(Move(sq, ep_square, PieceType::PAWN));
         }
     }
     return moves;

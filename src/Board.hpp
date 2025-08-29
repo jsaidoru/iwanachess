@@ -6,6 +6,17 @@
 #include <sstream>
 #include <vector>
 #include "types.hpp"
+#include "Move.hpp"
+
+struct BoardState {
+    int castling_rights;
+    Color side_to_move;
+    Square en_passant_square;
+    int halfmove_clock;
+    int fullmove_number;
+    PieceType captured;
+    PieceType moved;
+};
 
 class Board {
 private:
@@ -20,7 +31,17 @@ private:
     int fullmove_number = 0;
     std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+    std::vector<BoardState> state_stack;
+    std::vector<Move> move_stack;
+
     void reset_bitboard();
+
+    void remove_piece_at(Square square, Color color, PieceType pt);
+
+    void set_piece_at(Square square, Color color, PieceType pt);
+
+    Bitboard attackers_mask(Color color, Square square);
+    
 public:
     Board(const std::string& fen);
     void set_bb_from_fen();
@@ -37,7 +58,23 @@ public:
 
     void get_all_bitboard();
 
+    inline Color get_side_to_move() const {return side_to_move;}
+
     PieceType piece_type_at(Square square) const;
+
+    int get_castling_rights() const;
+
+    void update_castling_rights(Square from, Square to, PieceType piece, PieceType captured);
+
+    bool is_capture(const Move& move);
+
+    bool is_en_passant(const Move& move, Color us, Square en_passant_square);
+
+    int push(const Move& move);
+
+    int pop();
+
+    bool is_castling(const Move& move);
 
     friend std::ostream& operator<<(std::ostream& os, const Board& board);
 };

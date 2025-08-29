@@ -1,5 +1,6 @@
-#include "types.hpp"
+#include "../types.hpp"
 #include "init_sliding_attacks.hpp"
+#include "../bb_functions.hpp"
 #include <iostream>
 #include <vector>
 #include <random>
@@ -272,10 +273,6 @@ constexpr std::array<Bitboard, 64>bishop_magic = {
 0x420ce80488108100ull
 };
 
-int lsb(Bitboard bb){
-    return __builtin_ctzll(bb);
-}
-
 Bitboard set_occupancy(int index, int bits, Bitboard mask) {
     Bitboard occupancy = 0ULL;
     Bitboard subset = mask;
@@ -417,10 +414,8 @@ Bitboard find_magic(int square, Bitboard mask, AttackFunc compute_attack) {
     }
 }
 
-std::array<std::array<Bitboard, 4096>, 64>rook_attacks = {};
-std::array<std::array<Bitboard, 512>, 64>bishop_attacks = {};
-
-void init_rook_attacks(int sq) {
+constexpr auto generate_rook_attacks_for_square(int sq) {
+    std::array<Bitboard, 4096> attacks = {};
     Bitboard m = rook_mask[sq];
     int relevantBits = __builtin_popcountll(m);
     int size = 1 << relevantBits;
@@ -432,11 +427,21 @@ void init_rook_attacks(int sq) {
 
         uint64_t magicIndex = (blockers * rook_magic[sq]) >> (64 - relevantBits);
 
-        rook_attacks[sq][magicIndex] = attack;
+        attacks[magicIndex] = attack;
     }
-}
 
-void init_bishop_attacks(int sq) {
+    return attacks;
+}
+constexpr auto init_rook_attacks(){
+    std::array<std::array<Bitboard, 4096>, 64> rook_attacks = {};
+    for (int sq = 0; sq < 64; sq++){
+        rook_attacks[sq] = generate_rook_attacks_for_square(sq);
+    }
+
+    return rook_attacks;
+}
+constexpr auto generate_bishop_attacks_for_square(int sq) {
+    std::array<Bitboard, 512> attacks = {};
     Bitboard m = bishop_mask[sq];
     int relevantBits = __builtin_popcountll(m);
     int size = 1 << relevantBits;
@@ -446,8 +451,22 @@ void init_bishop_attacks(int sq) {
 
         Bitboard attack = compute_bishop_attack(sq, blockers);
 
-        uint64_t magic_index = (blockers * bishop_magic[sq]) >> (64 - relevantBits);
+        uint64_t magicIndex = (blockers * bishop_magic[sq]) >> (64 - relevantBits);
 
-        bishop_attacks[sq][magic_index] = attack;
+        if (magicIndex < attacks.size()) // avoid out-of-bounds
+            attacks[magicIndex] = attack;
     }
+
+    return attacks;
 }
+constexpr auto init_bishop_attacks(){
+    std::array<std::array<Bitboard, 512>, 64> bishop_attacks = {};
+    for (int sq = 0; sq < 64; sq++){
+        bishop_attacks[sq] = generate_bishop_attacks_for_square(sq);
+    }
+
+    return bishop_attacks;
+}
+
+std::array<std::array<Bitboard, 4096>, 64>rook_attacks = init_rook_attacks();
+std::array<std::array<Bitboard, 512>, 64>bishop_attacks = init_bishop_attacks();

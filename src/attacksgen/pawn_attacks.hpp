@@ -1,8 +1,8 @@
 #pragma once
-#include "types.hpp"
-#include "Board.hpp"
-#include "SquareSet.hpp"
-#include "bb_functions.hpp"
+#include "../types.hpp"
+#include "../Board.hpp"
+#include "../SquareSet.hpp"
+#include "../bb_functions.hpp"
 
 Bitboard pseudo_single_push_targets(Square square, Color color);
 Bitboard pseudo_double_push_targets(Square square, Color color, Bitboard empty);

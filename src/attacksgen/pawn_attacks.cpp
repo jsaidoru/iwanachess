@@ -1,8 +1,8 @@
-#include "bb_functions.hpp"
+#include "../bb_functions.hpp"
 #include "constants.hpp"
-#include "Board.hpp"
-#include "types.hpp"
-#include "SquareSet.hpp"
+#include "../Board.hpp"
+#include "../types.hpp"
+#include "../SquareSet.hpp"
 #include <iostream>
 #include <chrono>
 

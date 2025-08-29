@@ -1,7 +1,7 @@
-#include "bb_functions.hpp"
+#include "../bb_functions.hpp"
 #include "constants.hpp"
-#include "Board.hpp"
-#include "types.hpp"
+#include "../Board.hpp"
+#include "../types.hpp"
 #include "knight_attacks.hpp"
 
 Bitboard knight_possible_targets(Bitboard knight){

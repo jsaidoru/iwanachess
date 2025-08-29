@@ -1,7 +1,8 @@
-#include "bb_functions.hpp"
+#include "../bb_functions.hpp"
 #include "constants.hpp"
-#include "Board.hpp"
-#include "types.hpp"
+#include "../Board.hpp"
+#include "../types.hpp"
+#include "king_attacks.hpp"
 
 Bitboard king_possible_targets(Bitboard king){
     return  shift_north(king)     |

@@ -1,6 +1,7 @@
 #include "Move.hpp"
 #include "MoveList.hpp"
 #include <iostream>
+
 void MoveList::add_move(const Move& move){
     moves[size++] = move;
 }
@@ -20,7 +21,7 @@ MoveList operator+(const MoveList& a, const MoveList& b) {
 
 std::ostream& operator<<(std::ostream& os, const MoveList& list){
     for (Move move : list){
-        os << move.to_uci()<<"\n";
+        os << move.to_uci() << "\n";
     }
     return os;
 }

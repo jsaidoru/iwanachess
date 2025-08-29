@@ -2,8 +2,20 @@
 #include "types.hpp"
 #include "constants.hpp"
 
+int lsb(Bitboard bb){
+    return __builtin_ctzll(bb);
+}
+
 void set_bit(Bitboard& bitboard, Square square){
     bitboard |= (1ull << static_cast<int>(square));
+}
+
+void clear_bit(Bitboard& bitboard, Square square){
+    bitboard &= ~(1ull << static_cast<int>(square));
+}
+
+Bitboard get_bit(Bitboard& bitboard, Square square){
+    return bitboard & (1ull << static_cast<int>(square));
 }
 
 Bitboard shift_north(Bitboard b){

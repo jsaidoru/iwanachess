@@ -1,16 +1,8 @@
-#include "types.hpp"
+#include "../types.hpp"
 #include "init_sliding_attacks.hpp"
 #include "init_sliding_attacks.cpp"
-#include "bb_functions.hpp"
+#include "../bb_functions.hpp"
 #include "sliding_piece_att.hpp"
-
-static bool _sliding_attacks_init = [] {
-    for (int sq = 0; sq < 64; sq++) {
-        init_rook_attacks(sq);
-        init_bishop_attacks(sq);
-    }
-    return true;
-}();
 
 Bitboard generate_pseudo_rook_attacks(int sq, Bitboard occupancy) {
     Bitboard blockers   = occupancy & rook_mask[sq];
